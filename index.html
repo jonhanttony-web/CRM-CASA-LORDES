@@ -220,11 +220,11 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
   <div class="main">
     <div class="content">
       <div id="tab-clientes">
-        <div class="grid4">
+        <div class="grid4" style="grid-template-columns:repeat(5,1fr)">
           <div class="card"><div class="card-label">Clientes ativos</div><div class="card-value" id="m-total">0</div></div>
           <div class="card"><div class="card-label">Em andamento</div><div class="card-value c-amber" id="m-and">0</div></div>
           <div class="card"><div class="card-label">Fechados</div><div class="card-value c-green" id="m-fech">0</div></div>
-          <div class="card"><div class="card-label">Pipeline</div><div class="card-value c-purple" id="m-pipe">—</div></div>
+          <div class="card"><div class="card-label">Pipeline</div><div class="card-value c-purple" id="m-pipe">—</div></div><div class="card"><div class="card-label">Comissão estimada</div><div class="card-value c-purple" id="m-com-est">—</div></div>
         </div>
         <div class="row">
           <span class="section-title">Pastas de clientes</span>
@@ -302,7 +302,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
           <div class="card"><div class="card-label">Ticket médio</div><div class="card-value c-amber" id="meta-ticket">—</div></div>
         </div>
         <div class="divider"></div>
-        <div class="section-title" style="margin-bottom:14px">Comissão por projeto fechado</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="section-title">Comissão por projeto fechado</div><span style="font-size:12px;color:var(--text3)" id="meta-mes-label"></span></div>
         <div id="meta-com-list"><div class="empty">Quando fechar um projeto ele aparece aqui.</div></div>
       </div>
     </div>
