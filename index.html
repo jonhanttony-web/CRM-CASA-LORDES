@@ -331,6 +331,8 @@ var DIAS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
 function fmt(v){return v>0?'R$ '+Number(v).toLocaleString('pt-BR'):'—';}
 function calcCom(c){return Math.round((c.valor||0)*((c.comissao||0)/100));}
+function statusColor(s){var m={contato:'#1fad7e',briefing:'#c47f17',andamento:'#7c6fe0',aguardando:'#2a7fd4',fechado:'#1fad7e',perdido:'#d94040'};return m[s]||'#555';}
+
 function clientColor(id){var c=clients.find(function(x){return x.id===id;});if(c&&c.color)return c.color;var i=clients.findIndex(function(x){return x.id===id;});return COLORS[Math.max(0,i)%COLORS.length]||'#7c6fe0';}
 function pad(n){return String(n).padStart(2,'0');}
 function fmtDt(dt){if(!dt)return '';var d=new Date(dt);return pad(d.getDate())+'/'+pad(d.getMonth()+1)+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
@@ -399,7 +401,7 @@ function folderHTML(c,mode){
   else if(isPerdido)actions="<button class='btn btn-default' onclick='setStatus(\""+cid+"\",\"contato\")'>↺ Reativar</button>";
   var addBtn=isAtivo?"<button class='btn btn-sm btn-default' onclick='showModal(\"add-task\",{cid:\""+cid+"\"})'>+ Tarefa</button>":'';
   var pendBadge=pend>0?"<span class='badge-warn'>"+pend+"</span>":'';
-  return "<div class='folder' id='f-"+cid+"' style='border-left:3px solid "+cor+"'>"
+  return "<div class='folder' id='f-"+cid+"' style='border-left:3px solid "+statusColor(c.status)+"'>"
     +"<div class='folder-head' onclick='toggleFolder(\""+cid+"\")'>"
     +"<span class='folder-icon'>📁</span>"
     +"<div class='folder-info'><div class='folder-name'>"+esc(c.nome)+pendBadge+"</div><div class='folder-proj'>"+esc(c.projeto)+"</div></div>"
@@ -457,6 +459,8 @@ function render(){
   document.getElementById('m-fech').textContent=fechados.length;
   var pipe=allAtivos.reduce(function(s,c){return s+(c.valor||0);},0);
   document.getElementById('m-pipe').textContent=pipe>0?fmt(pipe):'—';
+  var comEst=allAtivos.filter(function(c){return c.comissao>0&&c.valor>0;}).reduce(function(s,c){return s+calcCom(c);},0);
+  var mce=document.getElementById('m-com-est');if(mce)mce.textContent=comEst>0?fmt(comEst):'—';
   var all=clients.filter(function(c){return c.status!=='perdido';});
   var brf=all.filter(function(c){return ['briefing','andamento','fechado'].includes(c.status);}).length;
   var prop=all.filter(function(c){return ['andamento','fechado'].includes(c.status);}).length;
@@ -469,19 +473,22 @@ function render(){
   document.getElementById('f-bar').style.width=taxa+'%';
   document.getElementById('list-conv').innerHTML=all.map(function(c){var cor=clientColor(c.id);return "<div class='conv-row'><div class='avatar' style='background:"+cor+"22;color:"+cor+"'>"+esc(c.iniciais)+"</div><div style='flex:1;min-width:0'><div style='font-size:13px;font-weight:600'>"+esc(c.nome)+"</div><div style='font-size:11px;color:var(--text3)'>"+esc(c.projeto)+"</div></div><div style='text-align:right'><div style='font-size:13px;font-weight:600'>"+fmt(c.valor||0)+"</div><span class='pill "+SC[c.status]+"' style='margin-top:3px;display:inline-block'>"+SL[c.status]+"</span></div></div>";}).join('');
   var mi=document.getElementById('meta-input');if(mi&&!mi._f)mi.value=meta||'';
-  var real=fechados.reduce(function(s,c){return s+(c.valor||0);},0);
-  var comT=fechados.reduce(function(s,c){return s+calcCom(c);},0);
+  var nowD=new Date();var mesAtual=nowD.getFullYear()+'-'+pad(nowD.getMonth()+1);
+  var fechadosMes=fechados.filter(function(c){if(!c.history)return true;var h=c.history.find(function(x){return x.status==='fechado';});if(!h)return true;var hd=new Date(h.date);return hd.getFullYear()+'-'+pad(hd.getMonth()+1)===mesAtual;});
+  var real=fechadosMes.reduce(function(s,c){return s+(c.valor||0);},0);
+  var comT=fechadosMes.reduce(function(s,c){return s+calcCom(c);},0);
   var pct=meta>0?Math.min(100,Math.round((real/meta)*100)):0;
-  var ticket=fechados.length>0?Math.round(real/fechados.length):0;
+  var ticket=fechadosMes.length>0?Math.round(real/fechadosMes.length):0;
   document.getElementById('meta-com').textContent='R$ '+comT.toLocaleString('pt-BR');
   document.getElementById('meta-real').textContent=fmt(real);
   document.getElementById('meta-real-sm').textContent=fmt(real);
   document.getElementById('meta-falta-sm').textContent='R$ '+Math.max(0,(meta||0)-real).toLocaleString('pt-BR');
-  document.getElementById('meta-nf').textContent=fechados.length;
+  document.getElementById('meta-nf').textContent=fechadosMes.length;
   document.getElementById('meta-ticket').textContent=ticket>0?fmt(ticket):'—';
   document.getElementById('meta-pct').textContent=pct+'%';
   document.getElementById('meta-bar').style.width=pct+'%';
   var hint=document.getElementById('meta-hint');if(hint)hint.textContent=meta>0&&real<meta?'Faltam R$ '+Math.max(0,(meta||0)-real).toLocaleString('pt-BR')+' para bater a meta':'';
+  var ml=document.getElementById('meta-mes-label');if(ml){var mn=new Date();ml.textContent=MESES[mn.getMonth()]+' '+mn.getFullYear();}
   document.getElementById('meta-com-list').innerHTML=fechados.length?fechados.map(function(c){var cid=q(c.id);return "<div style='display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px'><div style='flex:1'><div style='font-size:13px;font-weight:600'>"+esc(c.nome)+"</div><div style='font-size:11px;color:var(--text3)'>"+esc(c.projeto)+" · "+fmt(c.valor||0)+"</div></div><div style='display:flex;align-items:center;gap:8px;flex-shrink:0'><input type='number' placeholder='%' value='"+(c.comissao||'')+"' onchange='setComissao(\""+cid+"\",this.value)' style='width:65px;font-size:13px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);text-align:center;outline:none'/><span style='font-size:11px;color:var(--text3)'>%</span><span style='font-size:13px;font-weight:600;color:var(--purple2);min-width:90px;text-align:right'>"+(c.comissao>0&&c.valor>0?fmt(calcCom(c)):'—')+"</span></div></div>";}).join(''):"<div class='empty'>Quando fechar um projeto ele aparece aqui.</div>";
   setTimeout(bindDrag,50);
 }
@@ -518,7 +525,7 @@ function renderCal(){
       wd.forEach(function(d){
         var ds=pad(d.getFullYear())+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(h)+':00';
         content+="<div class='cal-week-cell' onclick='showModal(\"add-evt\",{dt:\""+ds+"\"})'>";
-        evts.filter(function(e){var ed=new Date(e.data_inicio);return ed.getFullYear()===d.getFullYear()&&ed.getMonth()===d.getMonth()&&ed.getDate()===d.getDate()&&ed.getHours()===h;}).forEach(function(e){var cor=clientColor(e.cliente_id);content+="<div class='cal-week-ev' style='background:"+cor+"30;color:"+cor+"' onclick='event.stopPropagation();showModal(\"edit-evt\",{eid:\""+q(e.id)+"\"})'>" +esc(e.titulo)+"</div>";});
+        evts.filter(function(e){var ed=new Date(e.data_inicio);return ed.getFullYear()===d.getFullYear()&&ed.getMonth()===d.getMonth()&&ed.getDate()===d.getDate()&&ed.getHours()===h;var loc=toLocalDT(e.data_inicio);var locH=parseInt(loc.split('T')[1].split(':')[0]);return ed.getFullYear()===d.getFullYear()&&ed.getMonth()===d.getMonth()&&ed.getDate()===d.getDate()&&locH===h;}).forEach(function(e){var cor=clientColor(e.cliente_id);content+="<div class='cal-week-ev' style='background:"+cor+"30;color:"+cor+"' onclick='event.stopPropagation();showModal(\"edit-evt\",{eid:\""+q(e.id)+"\"})'>" +esc(e.titulo)+"</div>";});
         content+="</div>";
       });
     }
