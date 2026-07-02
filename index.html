@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#7c6fe0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="CRM Lourdes"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CRM — Casa Lourdes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+:root{
+  --bg:#0d0d0d;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;
+  --border:#2a2a2a;--border2:#333;
+  --text:#efefef;--text2:#999;--text3:#555;
+  --purple:#7c6fe0;--purple2:#9d96f5;--purple-bg:#1a1730;
+  --green:#1fad7e;--green2:#34d399;--green-bg:#0a2218;
+  --amber:#c47f17;--amber2:#fbbf24;--amber-bg:#1e1500;
+  --red:#d94040;--red2:#f87171;--red-bg:#1e0808;
+  --blue:#2a7fd4;--blue2:#60a5fa;--blue-bg:#091828;
+  --radius:10px;--radius-lg:14px
+}
+body{background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.app{display:grid;grid-template-rows:auto auto 1fr;height:100vh;overflow:hidden}
+.header{padding:.8rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);flex-shrink:0}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-title{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.header-title span{color:#b91c1c}
+.header-right{display:flex;align-items:center;gap:8px}
+.search-wrap{position:relative}
+.search-wrap input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px 6px 30px;font-size:13px;color:var(--text);width:220px;outline:none}
+.search-wrap input:focus{border-color:var(--purple)}
+.search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none}
+.header-btn{font-size:12px;padding:5px 10px;border-radius:7px;cursor:pointer;font-family:inherit;border:1px solid var(--border2);background:none;color:var(--text2);display:inline-flex;align-items:center;gap:5px}
+.header-btn:hover{background:var(--bg3);color:var(--text)}
+.sort-select{font-size:12px;padding:5px 8px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);outline:none;cursor:pointer}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;padding:0 1.5rem}
+.tab{padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;display:flex;align-items:center;gap:6px;transition:color .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text);border-bottom-color:var(--purple);font-weight:500}
+.badge{font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600}
+.badge-blue{background:var(--purple-bg);color:var(--purple2)}
+.badge-green{background:var(--green-bg);color:var(--green2)}
+.badge-red{background:var(--red-bg);color:var(--red2)}
+.badge-warn{background:var(--red-bg);color:var(--red2);border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.main{overflow-y:auto;padding:1.5rem}
+.content{max-width:1200px;margin:0 auto}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.card-label{font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.card-value{font-size:24px;font-weight:600;letter-spacing:-.02em}
+.c-green{color:var(--green2)}.c-amber{color:var(--amber2)}.c-purple{color:var(--purple2)}.c-red{color:var(--red2)}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em}
+.section-sub{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px}
+.btn{font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;border:1px solid;display:inline-flex;align-items:center;gap:5px;transition:opacity .15s;font-weight:500}
+.btn:hover{opacity:.8}
+.btn-sm{font-size:11px;padding:3px 9px;border-radius:6px}
+.btn-add{font-size:13px;color:var(--purple2);background:none;border:1px solid #2a2560;border-radius:8px;padding:6px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.btn-add:hover{background:var(--purple-bg)}
+.btn-default{background:none;border-color:var(--border2);color:var(--text2)}
+.btn-primary{background:var(--purple-bg);border-color:#3a356e;color:var(--purple2)}
+.btn-success{background:var(--green-bg);border-color:#1a5e40;color:var(--green2)}
+.btn-danger{background:var(--red-bg);border-color:#5e1a1a;color:var(--red2)}
+.btn-warning{background:var(--amber-bg);border-color:#5e3e10;color:var(--amber2)}
+.btn-blue{background:var(--blue-bg);border-color:#1a3a5e;color:var(--blue2)}
+.pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.p-andamento{background:var(--purple-bg);color:var(--purple2)}
+.p-aguardando{background:var(--blue-bg);color:var(--blue2)}
+.p-contato{background:var(--green-bg);color:var(--green2)}
+.p-briefing{background:var(--amber-bg);color:var(--amber2)}
+.p-fechado{background:var(--green-bg);color:var(--green2)}
+.p-perdido{background:var(--red-bg);color:var(--red2)}
+.list{display:flex;flex-direction:column;gap:6px}
+.folder{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .15s}
+.folder:hover{border-color:var(--border2)}
+.folder-head{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none}
+.folder-icon{font-size:18px;flex-shrink:0}
+.folder-info{flex:1;min-width:0}
+.folder-name{font-size:14px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.folder-proj{font-size:12px;color:var(--text3);margin-top:2px}
+.folder-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.folder-val{font-size:13px;font-weight:600;color:var(--text2)}
+.folder-com{font-size:11px;color:var(--purple2);font-weight:600}
+.chevron{font-size:13px;color:var(--text3);transition:transform .2s}
+.chevron.open{transform:rotate(180deg)}
+.folder-body{border-top:1px solid var(--border);padding:18px;display:none}
+.folder-body.open{display:block}
+.status-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px;padding:10px;background:var(--bg3);border-radius:8px;align-items:center}
+.status-bar-label{font-size:11px;color:var(--text3);margin-right:4px;font-weight:600}
+.sopt{font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid transparent;background:none;font-family:inherit;font-weight:500}
+.sopt.active{border-color:rgba(255,255,255,.25)}
+.input-val{font-size:14px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);width:100%;outline:none;margin-bottom:10px}
+.input-val:focus{border-color:var(--purple)}
+.briefing-edit{width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none;line-height:1.5}
+.briefing-edit:focus{border-color:var(--purple)}
+.com-inline{display:flex;align-items:center;gap:6px}
+.com-inline input{width:70px;font-size:13px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);text-align:center;outline:none}
+.com-inline input:focus{border-color:var(--purple)}
+.com-preview{font-size:12px;color:var(--purple2);font-weight:600}
+.item-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.item-row:last-child{border-bottom:none}
+.item-text{flex:1;color:var(--text2);line-height:1.4}
+.item-date{font-size:11px;color:var(--amber2);margin-top:2px}
+.done-text{text-decoration:line-through;opacity:.45}
+.item-row.dragging{opacity:.3}
+.drag-handle{cursor:grab;color:var(--text3);font-size:14px;flex-shrink:0}
+.drag-handle:active{cursor:grabbing}
+.drag-over{border-top:2px solid var(--purple2) !important}
+.action-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.danger-row{display:flex;gap:6px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border);margin-top:10px}
+.history-list{margin-top:4px}
+.history-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text3)}
+.history-item:last-child{border-bottom:none}
+.history-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cal-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.cal-title{font-size:16px;font-weight:600}
+.cal-views{display:flex;gap:4px}
+.cal-view-btn{font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text2);font-family:inherit}
+.cal-view-btn.active{background:var(--purple-bg);border-color:#3a356e;color:var(--purple2)}
+.cal-nav-btns{display:flex;gap:6px}
+.cal-nav-btns button{background:none;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13px;font-family:inherit}
+.cal-nav-btns button:hover{background:var(--bg3)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-dname{text-align:center;font-size:11px;color:var(--text3);padding:10px 0;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);font-weight:600}
+.cal-day{min-height:110px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px;cursor:pointer;transition:background .1s}
+.cal-day:hover{background:var(--bg3)}
+.cal-day:nth-child(7n){border-right:none}
+.cal-day.faded .cal-num{color:var(--text3)}
+.cal-day.today .cal-num{background:var(--purple);color:white;border-radius:50%}
+.cal-num{font-size:12px;font-weight:600;margin-bottom:5px;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.cal-ev{font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;font-weight:500}
+.cal-ev:hover{opacity:.8}
+.cal-week-grid{display:grid;grid-template-columns:50px repeat(7,1fr)}
+.cal-week-header{text-align:center;font-size:11px;color:var(--text3);padding:8px 0;text-transform:uppercase;border-bottom:1px solid var(--border);font-weight:600}
+.cal-week-hour-lbl{font-size:10px;color:var(--text3);padding:4px 6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);text-align:right;background:var(--bg3)}
+.cal-week-cell{border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:34px;padding:2px;cursor:pointer}
+.cal-week-cell:hover{background:var(--bg3)}
+.cal-week-cell:last-child{border-right:none}
+.cal-week-ev{font-size:10px;padding:2px 5px;border-radius:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:1px;font-weight:500;cursor:pointer}
+.progress-wrap{margin-bottom:1.5rem}
+.progress-head{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:8px}
+.progress-bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .6s;background:var(--green)}
+.comissao-box{background:linear-gradient(135deg,#161430,#1e1c3a);border:1px solid #2a2560;border-radius:var(--radius-lg);padding:1.3rem 1.6rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between}
+.comissao-left{font-size:13px;color:var(--purple2);font-weight:500}
+.comissao-left span{font-size:11px;color:#6b65b5;display:block;margin-top:4px;font-weight:400}
+.comissao-right{font-size:34px;font-weight:700;color:#c4bff5;letter-spacing:-.02em}
+.meta-input-wrap{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px}
+.meta-input-wrap label{font-size:12px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.meta-input{font-size:14px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);width:160px;outline:none;font-weight:600}
+.meta-input:focus{border-color:var(--purple)}
+.funnel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.5rem}
+.funnel-step{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.funnel-n{font-size:28px;font-weight:700;letter-spacing:-.02em}
+.funnel-label{font-size:11px;color:var(--text3);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+.empty{text-align:center;padding:3rem;color:var(--text3);font-size:13px}
+.info-bar{border-radius:var(--radius);padding:10px 16px;margin-bottom:1rem;font-size:13px;display:flex;align-items:center;gap:8px;font-weight:500}
+.info-bar.green{background:var(--green-bg);color:var(--green2)}
+.info-bar.red{background:var(--red-bg);color:var(--red2)}
+.conv-row{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:6px}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.6rem;width:90%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:1.2rem}
+.mfield{margin-bottom:14px}
+.mfield label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.mfield input,.mfield select,.mfield textarea{width:100%;padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:var(--purple)}
+.mfield textarea{resize:vertical;min-height:80px;line-height:1.5}
+.mactions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.2rem;flex-wrap:wrap}
+.color-picker{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.color-opt{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s}
+.color-opt:hover{transform:scale(1.2)}
+.color-opt.selected{border-color:white;transform:scale(1.15)}
+.toast{position:fixed;bottom:24px;right:24px;background:#1e1b3a;border:1px solid #3a356e;color:var(--purple2);padding:10px 18px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;font-weight:500}
+.toast.show{opacity:1}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-left">
+      <img src="logo.png" alt="Casa Lourdes" style="height:34px;width:auto"/>
+      <div class="header-title">CRM <span>Casa Lourdes</span></div>
+    </div>
+    <div class="header-right">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="Buscar cliente..." oninput="filterClients(this.value)"/>
+      </div>
+      <select class="sort-select" id="sort-select" onchange="render()">
+        <option value="recente">Mais recente</option>
+        <option value="nome">Nome A-Z</option>
+        <option value="valor">Maior valor</option>
+        <option value="status">Por status</option>
+      </select>
+      <button class="header-btn" onclick="exportCSV()">⬇ CSV</button>
+      <button class="header-btn" onclick="backupData()">💾 Backup</button>
+      <button class="header-btn" onclick="document.getElementById('restore-input').click()">📂 Restaurar</button>
+      <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreData(this)"/>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="clientes">📁 Clientes <span class="badge badge-blue" id="n-ativos">0</span></button>
+    <button class="tab" data-tab="calendario">📅 Calendário</button>
+    <button class="tab" data-tab="fechados">✅ Fechados <span class="badge badge-green" id="n-fechados">0</span></button>
+    <button class="tab" data-tab="perdidos">🚫 Não convertidos <span class="badge badge-red" id="n-perdidos">0</span></button>
+    <button class="tab" data-tab="conversao">📊 Conversão</button>
+    <button class="tab" data-tab="meta">🎯 Meta</button>
+  </div>
+  <div class="main">
+    <div class="content">
+      <div id="tab-clientes">
+        <div class="grid4">
+          <div class="card"><div class="card-label">Clientes ativos</div><div class="card-value" id="m-total">0</div></div>
+          <div class="card"><div class="card-label">Em andamento</div><div class="card-value c-amber" id="m-and">0</div></div>
+          <div class="card"><div class="card-label">Fechados</div><div class="card-value c-green" id="m-fech">0</div></div>
+          <div class="card"><div class="card-label">Pipeline</div><div class="card-value c-purple" id="m-pipe">—</div></div>
+        </div>
+        <div class="row">
+          <span class="section-title">Pastas de clientes</span>
+          <button class="btn-add" onclick="showModal('cliente')">+ Novo cliente</button>
+        </div>
+        <div class="list" id="list-clientes"><div class="empty">Nenhum cliente ainda.</div></div>
+      </div>
+      <div id="tab-calendario" class="hidden">
+        <div class="cal-wrap">
+          <div class="cal-head">
+            <div class="cal-title" id="cal-title"></div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button class="btn-add" onclick="showModal('add-evt',{})">+ Novo evento</button>
+              <div class="cal-views">
+                <button class="cal-view-btn active" id="view-mes" onclick="setCalView('mes')">Mês</button>
+                <button class="cal-view-btn" id="view-sem" onclick="setCalView('sem')">Semana</button>
+              </div>
+              <div class="cal-nav-btns">
+                <button onclick="calMove(-1)">◀</button>
+                <button onclick="calToday()">Hoje</button>
+                <button onclick="calMove(1)">▶</button>
+              </div>
+            </div>
+          </div>
+          <div id="cal-content"></div>
+        </div>
+      </div>
+      <div id="tab-fechados" class="hidden">
+        <div class="info-bar green">🏆 Clientes que fecharam o projeto.</div>
+        <div id="fechados-cards"></div>
+        <div class="list" id="list-fechados"></div>
+        <div id="fechados-empty" class="empty hidden">Nenhum cliente fechado ainda.</div>
+      </div>
+      <div id="tab-perdidos" class="hidden">
+        <div class="info-bar red">🚫 Clientes que não converteram.</div>
+        <div class="list" id="list-perdidos"></div>
+        <div id="perdidos-empty" class="empty hidden">Nenhum cliente não convertido!</div>
+      </div>
+      <div id="tab-conversao" class="hidden">
+        <div class="funnel">
+          <div class="funnel-step"><div class="funnel-n" id="f-total">0</div><div class="funnel-label">Contatos</div></div>
+          <div class="funnel-step"><div class="funnel-n" id="f-brf">0</div><div class="funnel-label">Briefing</div></div>
+          <div class="funnel-step"><div class="funnel-n" id="f-prop">0</div><div class="funnel-label">Proposta</div></div>
+          <div class="funnel-step"><div class="funnel-n" id="f-fech">0</div><div class="funnel-label">Fechados</div></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-label">Taxa de conversão</div>
+          <div class="card-value c-green" id="f-taxa" style="font-size:30px;margin:8px 0">0%</div>
+          <div class="progress-bar"><div class="progress-fill" id="f-bar" style="width:0%"></div></div>
+        </div>
+        <div id="list-conv"></div>
+      </div>
+      <div id="tab-meta" class="hidden">
+        <div class="comissao-box">
+          <div class="comissao-left">💰 Sua comissão acumulada<span>Soma dos projetos fechados com % definida</span></div>
+          <div class="comissao-right" id="meta-com">R$ 0</div>
+        </div>
+        <div class="meta-input-wrap">
+          <label>Meta do mês:</label>
+          <span style="font-size:13px;color:var(--text3)">R$</span>
+          <input class="meta-input" type="number" id="meta-input" placeholder="50000" onchange="saveMeta(this.value)"/>
+          <span style="font-size:12px;color:var(--text3);margin-left:8px" id="meta-hint"></span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-head"><span>Progresso da meta</span><span id="meta-pct">0%</span></div>
+          <div class="progress-bar" style="height:10px"><div class="progress-fill" id="meta-bar" style="width:0%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-top:6px">
+            <span>Realizado: <strong id="meta-real-sm" style="color:var(--text2)">R$ 0</strong></span>
+            <span>Falta: <strong id="meta-falta-sm" style="color:var(--text2)">R$ 0</strong></span>
+          </div>
+        </div>
+        <div class="grid3">
+          <div class="card"><div class="card-label">Total vendido</div><div class="card-value c-green" id="meta-real">R$ 0</div></div>
+          <div class="card"><div class="card-label">Clientes fechados</div><div class="card-value" id="meta-nf">0</div></div>
+          <div class="card"><div class="card-label">Ticket médio</div><div class="card-value c-amber" id="meta-ticket">—</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-title" style="margin-bottom:14px">Comissão por projeto fechado</div>
+        <div id="meta-com-list"><div class="empty">Quando fechar um projeto ele aparece aqui.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="overlay hidden" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+var KEYS={clients:'crm_clients',evts:'crm_evts',meta:'crm_meta'};
+function lsLoad(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
+function lsSave(k,v){localStorage.setItem(k,JSON.stringify(v));}
+var clients=lsLoad(KEYS.clients)||[];
+var evts=lsLoad(KEYS.evts)||[];
+var meta=lsLoad(KEYS.meta)||50000;
+var calDate=new Date();
+var calView='mes';
+var filterQ='';
+var openFolders={};
+var dragSrc=null;
+var COLORS=['#7c6fe0','#1fad7e','#d94040','#c47f17','#2a7fd4','#d44db0','#16a986','#d4a017','#9b59b6','#e67e22','#1abc9c','#27ae60','#e74c3c','#8e44ad','#2980b9','#16a085'];
+var SL={andamento:'Em andamento',aguardando:'Aguardando',contato:'Primeiro contato',briefing:'Briefing',fechado:'Fechado',perdido:'Não convertido'};
+var SC={andamento:'p-andamento',aguardando:'p-aguardando',contato:'p-contato',briefing:'p-briefing',fechado:'p-fechado',perdido:'p-perdido'};
+var SATIVOS=['contato','briefing','andamento','aguardando'];
+var MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+var DIAS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function fmt(v){return v>0?'R$ '+Number(v).toLocaleString('pt-BR'):'—';}
+function calcCom(c){return Math.round((c.valor||0)*((c.comissao||0)/100));}
+function clientColor(id){var c=clients.find(function(x){return x.id===id;});if(c&&c.color)return c.color;var i=clients.findIndex(function(x){return x.id===id;});return COLORS[Math.max(0,i)%COLORS.length]||'#7c6fe0';}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtDt(dt){if(!dt)return '';var d=new Date(dt);return pad(d.getDate())+'/'+pad(d.getMonth()+1)+' '+pad(d.getHours())+':'+pad(d.getMinutes());}
+function fmtDate(dt){if(!dt)return '';var d=new Date(dt);return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();}
+function toLocalDT(dt){if(!dt)return '';var d=new Date(dt);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2500);}
+function getV(id){var el=document.getElementById(id);return el?el.value:'';}
+function getT(id){var el=document.getElementById(id);return el?el.value.trim():'';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function persist(){lsSave(KEYS.clients,clients);lsSave(KEYS.evts,evts);}
+function filterClients(q){filterQ=(q||'').toLowerCase();render();}
+function addHistory(c,status){c.history=c.history||[];c.history.unshift({status:status,date:new Date().toISOString()});if(c.history.length>10)c.history=c.history.slice(0,10);}
+function pendingCount(c){return (c.tarefas||[]).filter(function(t){return !t.concluida;}).length;}
+function getSorted(list){
+  var s=document.getElementById('sort-select');
+  var by=s?s.value:'recente';
+  var arr=list.slice();
+  if(by==='nome')arr.sort(function(a,b){return a.nome.localeCompare(b.nome,'pt');});
+  else if(by==='valor')arr.sort(function(a,b){return (b.valor||0)-(a.valor||0);});
+  else if(by==='status'){var o={contato:0,briefing:1,andamento:2,aguardando:3};arr.sort(function(a,b){return (o[a.status]||0)-(o[b.status]||0);});}
+  return arr;
+}
+function q(s){return s.replace(/'/g,"&#39;");}
+function folderHTML(c,mode){
+  var cor=clientColor(c.id);
+  var isAtivo=mode==='ativo',isFechado=mode==='fechado',isPerdido=mode==='perdido';
+  var tarefas=c.tarefas||[];
+  var cevts=evts.filter(function(e){return e.cliente_id===c.id;});
+  var isOpen=openFolders[c.id];
+  var pend=pendingCount(c);
+  var comVal=calcCom(c);
+  var cid=q(c.id);
+  var tHTML=tarefas.length?tarefas.map(function(t,idx){
+    var done=t.concluida;
+    var dtH=t.data_vencimento?"<div class='item-date'>📅 "+fmtDt(t.data_vencimento)+"</div>":'';
+    var tid=q(t.id);
+    return "<div class='item-row' draggable='true' data-cid='"+cid+"' data-tid='"+tid+"' data-idx='"+idx+"'>"
+      +"<span class='drag-handle'>⠿</span>"
+      +"<span style='cursor:pointer;font-size:15px;flex-shrink:0' onclick='toggleTask(\""+cid+"\",\""+tid+"\")'>"+(done?'✅':'🔲')+"</span>"
+      +"<div style='flex:1;min-width:0'><div class='item-text"+(done?' done-text':'')+"'>"+esc(t.texto)+"</div>"+dtH+"</div>"
+      +(isAtivo?"<button class='btn btn-sm btn-default' onclick='showModal(\"edit-task\",{cid:\""+cid+"\",tid:\""+tid+"\"})'>✏️</button>"
+        +"<button class='btn btn-sm btn-danger' onclick='delTask(\""+cid+"\",\""+tid+"\")'>✕</button>":'')
+      +"</div>";
+  }).join(''):"<div style='font-size:12px;color:var(--text3);padding:6px 0'>Nenhuma tarefa ainda.</div>";
+  var eHTML=cevts.length?cevts.map(function(e){
+    var eid=q(e.id);
+    return "<div class='item-row'>"
+      +"<div style='width:8px;height:8px;border-radius:50%;background:"+cor+";flex-shrink:0'></div>"
+      +"<div style='flex:1;min-width:0'><div class='item-text'>"+esc(e.titulo)+"</div><div class='item-date'>"+fmtDt(e.data_inicio)+"</div></div>"
+      +"<button class='btn btn-sm btn-default' onclick='showModal(\"edit-evt\",{eid:\""+eid+"\"})'>✏️</button>"
+      +"<button class='btn btn-sm btn-danger' onclick='delEvt(\""+eid+"\")'>✕</button>"
+      +"</div>";
+  }).join(''):"<div style='font-size:12px;color:var(--text3);padding:6px 0'>Nenhum evento ainda.</div>";
+  var sBar=isAtivo?"<div class='status-bar'><span class='status-bar-label'>Status:</span>"
+    +SATIVOS.map(function(s){return "<button class='sopt "+SC[s]+(c.status===s?' active':'')+"' onclick='setStatus(\""+cid+"\",\""+s+"\")'>"+SL[s]+"</button>";}).join('')+"</div>":'';
+  var hHTML='';
+  if(c.history&&c.history.length){
+    hHTML="<div class='section-sub'><span>📌 Histórico</span></div><div class='history-list'>"
+      +c.history.map(function(h){return "<div class='history-item'><div class='history-dot' style='background:"+cor+"'></div><span>"+(SL[h.status]||h.status)+"</span><span style='margin-left:auto'>"+fmtDate(h.date)+"</span></div>";}).join('')
+      +"</div>";
+  }
+  var actions='';
+  if(isAtivo)actions="<button class='btn btn-success' onclick='setStatus(\""+cid+"\",\"fechado\")'>✓ Fechou!</button>"
+    +"<button class='btn btn-danger' onclick='setStatus(\""+cid+"\",\"perdido\")'>✕ Não converteu</button>";
+  else if(isFechado)actions="<button class='btn btn-warning' onclick='setStatus(\""+cid+"\",\"andamento\")'>↩ Reativar</button>";
+  else if(isPerdido)actions="<button class='btn btn-default' onclick='setStatus(\""+cid+"\",\"contato\")'>↺ Reativar</button>";
+  var addBtn=isAtivo?"<button class='btn btn-sm btn-default' onclick='showModal(\"add-task\",{cid:\""+cid+"\"})'>+ Tarefa</button>":'';
+  var pendBadge=pend>0?"<span class='badge-warn'>"+pend+"</span>":'';
+  return "<div class='folder' id='f-"+cid+"' style='border-left:3px solid "+cor+"'>"
+    +"<div class='folder-head' onclick='toggleFolder(\""+cid+"\")'>"
+    +"<span class='folder-icon'>📁</span>"
+    +"<div class='folder-info'><div class='folder-name'>"+esc(c.nome)+pendBadge+"</div><div class='folder-proj'>"+esc(c.projeto)+"</div></div>"
+    +"<div class='folder-right'>"
+    +(c.valor>0?"<span class='folder-val'>"+fmt(c.valor)+"</span>":'')
+    +(c.comissao>0&&c.valor>0?"<span class='folder-com'>"+fmt(comVal)+"</span>":'')
+    +"<span class='pill "+SC[c.status]+"'>"+SL[c.status]+"</span>"
+    +"<span class='chevron"+(isOpen?' open':'')+"'>▾</span></div></div>"
+    +"<div class='folder-body"+(isOpen?' open':'')+"' id='fb-"+cid+"'>"
+    +sBar
+    +"<div class='grid2' style='margin-bottom:14px'>"
+    +"<div>"
+    +"<div class='card-label'>Valor do projeto (R$)</div>"
+    +"<input class='input-val' type='number' placeholder='0' value='"+(c.valor||'')+"' onchange='setValor(\""+cid+"\",this.value)' style='margin-bottom:10px'/>"
+    +"<div class='card-label'>Comissão</div>"
+    +"<div class='com-inline'><input type='number' placeholder='%' value='"+(c.comissao||'')+"' onchange='setComissao(\""+cid+"\",this.value)' min='0' max='100'/>"
+    +"<span style='font-size:11px;color:var(--text3)'>%</span>"
+    +"<span class='com-preview'>"+(c.comissao>0&&c.valor>0?'= '+fmt(calcCom(c)):'')+"</span></div>"
+    +"</div>"
+    +"<div><div class='card-label'>Briefing / Anotações</div>"
+    +"<textarea class='briefing-edit' rows='5' onchange='setBriefing(\""+cid+"\",this.value)'>"+esc(c.briefing||'')+"</textarea></div>"
+    +"</div>"
+    +"<div class='section-sub'><span>📋 Tarefas</span>"+addBtn+"</div>"
+    +"<div id='tasks-"+cid+"'>"+tHTML+"</div>"
+    +"<div class='section-sub'><span>📅 Eventos</span>"
+    +"<button class='btn btn-sm btn-blue' onclick='showModal(\"add-evt\",{cid:\""+cid+"\"})'>+ Evento</button></div>"
+    +"<div>"+eHTML+"</div>"
+    +hHTML
+    +"<div class='action-row'>"+actions+"</div>"
+    +"<div class='danger-row'>"
+    +"<button class='btn btn-default btn-sm' onclick='showModal(\"edit-cliente\",{cid:\""+cid+"\"})'>✏️ Editar</button>"
+    +"<button class='btn btn-default btn-sm' onclick='showModal(\"cor-cliente\",{cid:\""+cid+"\"})'>🎨 Cor</button>"
+    +"<button class='btn btn-danger btn-sm' onclick='delClient(\""+cid+"\")'>🗑 Excluir</button>"
+    +"</div></div></div>";
+}
+function render(){
+  var q2=filterQ;
+  var ativos=clients.filter(function(c){return c.status!=='fechado'&&c.status!=='perdido'&&(!q2||(c.nome+c.projeto).toLowerCase().includes(q2));});
+  var fechados=clients.filter(function(c){return c.status==='fechado';});
+  var perdidos=clients.filter(function(c){return c.status==='perdido';});
+  document.getElementById('list-clientes').innerHTML=getSorted(ativos).length?getSorted(ativos).map(function(c){return folderHTML(c,'ativo');}).join(''):"<div class='empty'>"+(q2?'Nenhum resultado.':'Nenhum cliente ainda.')+"</div>";
+  document.getElementById('list-fechados').innerHTML=fechados.map(function(c){return folderHTML(c,'fechado');}).join('');
+  document.getElementById('fechados-empty').classList.toggle('hidden',fechados.length>0);
+  var tF=fechados.reduce(function(s,c){return s+(c.valor||0);},0);
+  var cF=fechados.reduce(function(s,c){return s+calcCom(c);},0);
+  document.getElementById('fechados-cards').innerHTML=fechados.length?"<div class='grid2'><div class='card'><div class='card-label'>Total vendido</div><div class='card-value c-green'>"+(tF>0?fmt(tF):'—')+"</div></div><div class='card'><div class='card-label'>Sua comissão</div><div class='card-value c-purple'>"+(cF>0?fmt(cF):'—')+"</div></div></div>":'';
+  document.getElementById('list-perdidos').innerHTML=perdidos.map(function(c){return folderHTML(c,'perdido');}).join('');
+  document.getElementById('perdidos-empty').classList.toggle('hidden',perdidos.length>0);
+  document.getElementById('n-ativos').textContent=ativos.length;
+  document.getElementById('n-fechados').textContent=fechados.length;
+  document.getElementById('n-perdidos').textContent=perdidos.length;
+  var allAtivos=clients.filter(function(c){return c.status!=='fechado'&&c.status!=='perdido';});
+  document.getElementById('m-total').textContent=allAtivos.length;
+  document.getElementById('m-and').textContent=allAtivos.filter(function(c){return c.status==='andamento';}).length;
+  document.getElementById('m-fech').textContent=fechados.length;
+  var pipe=allAtivos.reduce(function(s,c){return s+(c.valor||0);},0);
+  document.getElementById('m-pipe').textContent=pipe>0?fmt(pipe):'—';
+  var all=clients.filter(function(c){return c.status!=='perdido';});
+  var brf=all.filter(function(c){return ['briefing','andamento','fechado'].includes(c.status);}).length;
+  var prop=all.filter(function(c){return ['andamento','fechado'].includes(c.status);}).length;
+  var taxa=all.length>0?Math.round((fechados.length/all.length)*100):0;
+  document.getElementById('f-total').textContent=all.length;
+  document.getElementById('f-brf').textContent=brf;
+  document.getElementById('f-prop').textContent=prop;
+  document.getElementById('f-fech').textContent=fechados.length;
+  document.getElementById('f-taxa').textContent=taxa+'%';
+  document.getElementById('f-bar').style.width=taxa+'%';
+  document.getElementById('list-conv').innerHTML=all.map(function(c){var cor=clientColor(c.id);return "<div class='conv-row'><div class='avatar' style='background:"+cor+"22;color:"+cor+"'>"+esc(c.iniciais)+"</div><div style='flex:1;min-width:0'><div style='font-size:13px;font-weight:600'>"+esc(c.nome)+"</div><div style='font-size:11px;color:var(--text3)'>"+esc(c.projeto)+"</div></div><div style='text-align:right'><div style='font-size:13px;font-weight:600'>"+fmt(c.valor||0)+"</div><span class='pill "+SC[c.status]+"' style='margin-top:3px;display:inline-block'>"+SL[c.status]+"</span></div></div>";}).join('');
+  var mi=document.getElementById('meta-input');if(mi&&!mi._f)mi.value=meta||'';
+  var real=fechados.reduce(function(s,c){return s+(c.valor||0);},0);
+  var comT=fechados.reduce(function(s,c){return s+calcCom(c);},0);
+  var pct=meta>0?Math.min(100,Math.round((real/meta)*100)):0;
+  var ticket=fechados.length>0?Math.round(real/fechados.length):0;
+  document.getElementById('meta-com').textContent='R$ '+comT.toLocaleString('pt-BR');
+  document.getElementById('meta-real').textContent=fmt(real);
+  document.getElementById('meta-real-sm').textContent=fmt(real);
+  document.getElementById('meta-falta-sm').textContent='R$ '+Math.max(0,(meta||0)-real).toLocaleString('pt-BR');
+  document.getElementById('meta-nf').textContent=fechados.length;
+  document.getElementById('meta-ticket').textContent=ticket>0?fmt(ticket):'—';
+  document.getElementById('meta-pct').textContent=pct+'%';
+  document.getElementById('meta-bar').style.width=pct+'%';
+  var hint=document.getElementById('meta-hint');if(hint)hint.textContent=meta>0&&real<meta?'Faltam R$ '+Math.max(0,(meta||0)-real).toLocaleString('pt-BR')+' para bater a meta':'';
+  document.getElementById('meta-com-list').innerHTML=fechados.length?fechados.map(function(c){var cid=q(c.id);return "<div style='display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px'><div style='flex:1'><div style='font-size:13px;font-weight:600'>"+esc(c.nome)+"</div><div style='font-size:11px;color:var(--text3)'>"+esc(c.projeto)+" · "+fmt(c.valor||0)+"</div></div><div style='display:flex;align-items:center;gap:8px;flex-shrink:0'><input type='number' placeholder='%' value='"+(c.comissao||'')+"' onchange='setComissao(\""+cid+"\",this.value)' style='width:65px;font-size:13px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);text-align:center;outline:none'/><span style='font-size:11px;color:var(--text3)'>%</span><span style='font-size:13px;font-weight:600;color:var(--purple2);min-width:90px;text-align:right'>"+(c.comissao>0&&c.valor>0?fmt(calcCom(c)):'—')+"</span></div></div>";}).join(''):"<div class='empty'>Quando fechar um projeto ele aparece aqui.</div>";
+  setTimeout(bindDrag,50);
+}
+function setCalView(v){calView=v;document.getElementById('view-mes').classList.toggle('active',v==='mes');document.getElementById('view-sem').classList.toggle('active',v==='sem');renderCal();}
+function renderCal(){
+  var y=calDate.getFullYear(),m=calDate.getMonth();
+  var content='';
+  if(calView==='mes'){
+    document.getElementById('cal-title').textContent=MESES[m]+' '+y;
+    content="<div class='cal-grid'>";
+    DIAS.forEach(function(d){content+="<div class='cal-dname'>"+d+"</div>";});
+    var first=new Date(y,m,1),last=new Date(y,m+1,0),today=new Date();
+    for(var i=0;i<first.getDay();i++){content+="<div class='cal-day faded'><div class='cal-num'>"+(new Date(y,m,1-first.getDay()+i)).getDate()+"</div></div>";}
+    for(var d=1;d<=last.getDate();d++){
+      var dt=new Date(y,m,d);var isT=dt.toDateString()===today.toDateString();
+      content+="<div class='cal-day"+(isT?' today':'')+"' onclick='showModal(\"add-evt\",{dt:\""+y+"-"+pad(m+1)+"-"+pad(d)+"T09:00\"})'>";
+      content+="<div class='cal-num'>"+d+"</div>";
+      evts.filter(function(e){var ed=new Date(e.data_inicio);return ed.getFullYear()===y&&ed.getMonth()===m&&ed.getDate()===d;}).forEach(function(e){var cor=clientColor(e.cliente_id);var hora=pad(new Date(e.data_inicio).getHours())+':'+pad(new Date(e.data_inicio).getMinutes());content+="<div class='cal-ev' style='background:"+cor+"30;color:"+cor+"' onclick='event.stopPropagation();showModal(\"edit-evt\",{eid:\""+q(e.id)+"\"})'>"+(hora+' '+esc(e.titulo))+"</div>";});
+      clients.forEach(function(c){(c.tarefas||[]).filter(function(t){if(!t.data_vencimento||t.concluida)return false;var td=new Date(t.data_vencimento);return td.getFullYear()===y&&td.getMonth()===m&&td.getDate()===d;}).forEach(function(t){var cor=clientColor(c.id);var hora=pad(new Date(t.data_vencimento).getHours())+':'+pad(new Date(t.data_vencimento).getMinutes());content+="<div class='cal-ev' style='background:"+cor+"18;color:"+cor+";border-left:2px solid "+cor+"'>"+hora+" 🔲 "+esc(c.nome)+"</div>";});});
+      content+="</div>";
+    }
+    var rem=(7-((first.getDay()+last.getDate())%7))%7;
+    for(var i=0;i<rem;i++)content+="<div class='cal-day faded'><div class='cal-num'>"+(i+1)+"</div></div>";
+    content+="</div>";
+  } else {
+    var dow=calDate.getDay();var ws=new Date(calDate);ws.setDate(calDate.getDate()-dow);
+    var wd=[];for(var i=0;i<7;i++){var dd=new Date(ws);dd.setDate(ws.getDate()+i);wd.push(dd);}
+    document.getElementById('cal-title').textContent=pad(wd[0].getDate())+'/'+pad(wd[0].getMonth()+1)+' – '+pad(wd[6].getDate())+'/'+pad(wd[6].getMonth()+1)+'/'+wd[6].getFullYear();
+    var today2=new Date();
+    content="<div class='cal-week-grid'><div class='cal-week-hour-lbl' style='border-bottom:1px solid var(--border)'></div>";
+    wd.forEach(function(d){var isT=d.toDateString()===today2.toDateString();content+="<div class='cal-week-header' style='"+(isT?'color:var(--purple2)':'')+"'>"+DIAS[d.getDay()]+' '+pad(d.getDate())+"</div>";});
+    for(var h=7;h<=21;h++){
+      content+="<div class='cal-week-hour-lbl'>"+pad(h)+":00</div>";
+      wd.forEach(function(d){
+        var ds=pad(d.getFullYear())+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(h)+':00';
+        content+="<div class='cal-week-cell' onclick='showModal(\"add-evt\",{dt:\""+ds+"\"})'>";
+        evts.filter(function(e){var ed=new Date(e.data_inicio);return ed.getFullYear()===d.getFullYear()&&ed.getMonth()===d.getMonth()&&ed.getDate()===d.getDate()&&ed.getHours()===h;}).forEach(function(e){var cor=clientColor(e.cliente_id);content+="<div class='cal-week-ev' style='background:"+cor+"30;color:"+cor+"' onclick='event.stopPropagation();showModal(\"edit-evt\",{eid:\""+q(e.id)+"\"})'>" +esc(e.titulo)+"</div>";});
+        content+="</div>";
+      });
+    }
+    content+="</div>";
+  }
+  document.getElementById('cal-content').innerHTML=content;
+}
+function calMove(d){if(calView==='mes')calDate=new Date(calDate.getFullYear(),calDate.getMonth()+d,1);else calDate=new Date(calDate.getFullYear(),calDate.getMonth(),calDate.getDate()+(d*7));renderCal();}
+function calToday(){calDate=new Date();renderCal();}
+function toggleFolder(id){openFolders[id]=!openFolders[id];var fb=document.getElementById('fb-'+id);var ch=document.querySelector('#f-'+id+' .chevron');if(fb)fb.classList.toggle('open',!!openFolders[id]);if(ch)ch.classList.toggle('open',!!openFolders[id]);}
+function bindDrag(){
+  document.querySelectorAll('.item-row[draggable]').forEach(function(row){
+    row.addEventListener('dragstart',function(e){dragSrc=row;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragend',function(){row.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(function(r){r.classList.remove('drag-over');});});
+    row.addEventListener('dragover',function(e){e.preventDefault();if(row!==dragSrc){document.querySelectorAll('.drag-over').forEach(function(r){r.classList.remove('drag-over');});row.classList.add('drag-over');}});
+    row.addEventListener('drop',function(e){e.preventDefault();if(!dragSrc||dragSrc===row)return;var cid=row.dataset.cid;if(cid!==dragSrc.dataset.cid)return;var c=clients.find(function(x){return x.id===cid;});if(!c)return;var from=parseInt(dragSrc.dataset.idx),to=parseInt(row.dataset.idx);var t=c.tarefas.splice(from,1)[0];c.tarefas.splice(to,0,t);persist();render();openFolders[cid]=true;});
+  });
+}
+function showModal(type,data){
+  data=data||{};
+  var m=document.getElementById('modal');
+  var cOpts="<option value=''>Sem cliente</option>"+clients.filter(function(c){return c.status!=='perdido';}).map(function(c){return "<option value='"+q(c.id)+"'"+(data.cid===c.id?' selected':'')+">"+esc(c.nome)+" — "+esc(c.projeto)+"</option>";}).join('');
+  var defDt='';
+  if(data.dt){var dt2=typeof data.dt==='string'?data.dt:(data.dt instanceof Date?data.dt.getFullYear()+'-'+pad(data.dt.getMonth()+1)+'-'+pad(data.dt.getDate())+'T09:00':'');defDt=dt2;}
+  if(type==='cliente'){
+    m.innerHTML="<h3>Novo cliente</h3>"
+      +"<div class='mfield'><label>Nome do cliente</label><input type='text' id='m-nome' placeholder='Ex: Maria Silva' autocomplete='off'/></div>"
+      +"<div class='mfield'><label>Projeto / ambiente</label><input type='text' id='m-projeto' placeholder='Ex: Cozinha, Closet...' autocomplete='off'/></div>"
+      +"<div class='mfield'><label>Status</label><select id='m-status'><option value='contato'>Primeiro contato</option><option value='briefing'>Briefing</option><option value='andamento' selected>Em andamento</option><option value='aguardando'>Aguardando</option></select></div>"
+      +"<div class='mfield'><label>Briefing / anotações</label><textarea id='m-briefing' placeholder='Detalhes do projeto...'></textarea></div>"
+      +"<div class='mfield'><label>Primeira tarefa (opcional)</label><input type='text' id='m-tarefa' placeholder='Ex: Fazer render e enviar' autocomplete='off'/></div>"
+      +"<div class='mactions'><button class='btn btn-default' onclick='closeModal()'>Cancelar</button><button class='btn btn-primary' onclick='saveCliente()'>Salvar cliente</button></div>";
+  } else if(type==='edit-cliente'){
+    var c=clients.find(function(x){return x.id===data.cid;});if(!c)return;
+    m.innerHTML="<h3>Editar cliente</h3>"
+      +"<div class='mfield'><label>Nome</label><input type='text' id='m-nome' value='"+esc(c.nome)+"' autocomplete='off'/></div>"
+      +"<div class='mfield'><label>Projeto / ambiente</label><input type='text' id='m-projeto' value='"+esc(c.projeto)+"' autocomplete='off'/></div>"
+      +"<div class='mactions'><button class='btn btn-default' onclick='closeModal()'>Cancelar</button><button class='btn btn-primary' onclick='updateCliente(\""+q(c.id)+"\")'>Salvar</button></div>";
+  } else if(type==='cor-cliente'){
+    var c=clients.find(function(x){return x.id===data.cid;});if(!c)return;
+    var cur=clientColor(c.id);
+    m.innerHTML="<h3>Cor — "+esc(c.nome)+"</h3><div class='color-picker' id='color-picker'>"+COLORS.map(function(col){return "<div class='color-opt"+(col===cur?' selected':'')+"' style='background:"+col+"' onclick='pickColor(\""+q(c.id)+"\",\""+col+"\",this)'></div>";}).join('')+"</div><div class='mactions'><button class='btn btn-default' onclick='closeModal()'>Fechar</button></div>";
+  } else if(type==='add-task'){
+    m.innerHTML="<h3>Nova tarefa</h3>"
+      +"<div class='mfield'><label>Descrição</label><input type='text' id='m-texto' placeholder='Ex: Aguardando transporte...' autocomplete='off'/></div>"
+      +"<div class='mfield'><label>Data e horário (opcional)</label><input type='datetime-local' id='m-dt' value='"+defDt+"'/></div>"
+      +"<div class='mactions'><button class='btn btn-default' onclick='closeModal()'>Cancelar</button>"
+      +"<button class='btn btn-primary' onclick='saveTask(\""+q(data.cid||'')+"\")'>Salvar</button></div>";
+  } else if(type==='edit-task'){
+    var c=clients.find(function(x){return x.id===data.cid;});var t=c&&c.tarefas.find(function(t){return t.id===data.tid;});if(!t)return;
+    m.innerHTML="<h3>Editar tarefa</h3>"
+      +"<div class='mfield'><label>Descrição</label><input type='text' id='m-texto' value='"+esc(t.texto)+"' autocomplete='off'/></div>"
+      +"<div class='mfield'><label>Data e horário (opcional)</label><input type='datetime-local' id='m-dt' value='"+toLocalDT(t.data_vencimento)+"'/></div>"
+      +"<div class='mactions'><button class='btn btn-default' onclick='closeModal()'>Cancelar</button>"
+      +"<button class='btn btn-primary' onclick='updateTask(\""+q(data.cid)+"\",\""+q(data.tid)+"\")'>Salvar</button></div>";
+  } else if(type==='add-evt'){
+    m.innerHTML="<h3>Novo evento</h3>"
+      +"<div class='mfield'><label>Título</label><input type='text' id='m-titulo' placeholder='Ex: Visita técnica...' autocomplete='off'/></div>"
+      +"<div class='mfield'><label>Cliente</label><select id='m-cliente'>"+cOpts+"</select></div>"
+      +"<div class='mfield'><label>Data e horário</label><input type='datetime-local' id='m-dt' value='"+defDt+"'/></div>"
+      +"<div class='mfield'><label>Descrição (opcional)</label><textarea id='m-desc' placeholder='Detalhes...'></textarea></div>"
+      +"<div class='mactions'><button class='btn btn-default' onclick='closeModal()'>Cancelar</button>"
+      +"<button class='btn btn-blue' onclick='saveEvt()'>Salvar evento</button></div>";
+  } else if(type==='edit-evt'){
+    var e=evts.find(function(x){return x.id===data.eid;});if(!e)return;
+    var opts="<option value=''>Sem cliente</option>"+clients.filter(function(c){return c.status!=='perdido';}).map(function(c){return "<option value='"+q(c.id)+"'"+(c.id===e.cliente_id?' selected':'')+">"+esc(c.nome)+" — "+esc(c.projeto)+"</option>";}).join('');
+    m.innerHTML="<h3>Editar evento</h3>"
+      +"<div class='mfield'><label>Título</label><input type='text' id='m-titulo' value='"+esc(e.titulo)+"' autocomplete='off'/></div>"
+      +"<div class='mfield'><label>Cliente</label><select id='m-cliente'>"+opts+"</select></div>"
+      +"<div class='mfield'><label>Data e horário</label><input type='datetime-local' id='m-dt' value='"+toLocalDT(e.data_inicio)+"'/></div>"
+      +"<div class='mfield'><label>Descrição (opcional)</label><textarea id='m-desc'>"+esc(e.descricao||'')+"</textarea></div>"
+      +"<div class='mactions'>"
+      +"<button class='btn btn-danger' onclick='delEvt(\""+q(e.id)+"\")'>Excluir</button>"
+      +"<button class='btn btn-default' onclick='closeModal()'>Cancelar</button>"
+      +"<button class='btn btn-blue' onclick='updateEvt(\""+q(e.id)+"\")'>Salvar</button></div>";
+  }
+  document.getElementById('overlay').classList.remove('hidden');
+  var first=m.querySelector("input:not([type=hidden]),select,textarea");
+  if(first)setTimeout(function(){first.focus();},80);
+}
+function closeModal(){document.getElementById('overlay').classList.add('hidden');}
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();if(e.key==='Enter'&&e.ctrlKey){var b=document.querySelector('#modal .btn-primary,#modal .btn-blue');if(b)b.click();}});
+document.getElementById('meta-input').addEventListener('focus',function(){this._f=true;});
+document.getElementById('meta-input').addEventListener('blur',function(){this._f=false;});
+function saveCliente(){
+  var nome=getT('m-nome'),projeto=getT('m-projeto');if(!nome||!projeto){toast('Preencha nome e projeto');return;}
+  var status=getV('m-status')||'contato';
+  var c={id:uid(),nome:nome,projeto:projeto,status:status,briefing:getT('m-briefing'),iniciais:nome.split(' ').slice(0,2).map(function(w){return w[0].toUpperCase();}).join(''),valor:0,comissao:0,tarefas:[],history:[]};
+  addHistory(c,status);
+  var tarefa=getT('m-tarefa');if(tarefa)c.tarefas.push({id:uid(),texto:tarefa,tipo:'pending',concluida:false,data_vencimento:null});
+  clients.unshift(c);persist();closeModal();render();toast('Cliente adicionado!');
+}
+function updateCliente(id){var nome=getT('m-nome'),projeto=getT('m-projeto');if(!nome||!projeto){toast('Preencha');return;}var c=clients.find(function(x){return x.id===id;});if(!c)return;c.nome=nome;c.projeto=projeto;c.iniciais=nome.split(' ').slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');persist();closeModal();render();toast('Atualizado!');}
+function pickColor(id,col,el){var c=clients.find(function(x){return x.id===id;});if(!c)return;c.color=col;persist();document.querySelectorAll('.color-opt').forEach(function(x){x.classList.remove('selected');});el.classList.add('selected');render();openFolders[id]=true;toast('Cor atualizada!');}
+function setStatus(id,status){var c=clients.find(function(x){return x.id===id;});if(!c)return;c.status=status;addHistory(c,status);persist();render();toast('Status: '+SL[status]);}
+function setValor(id,val){var c=clients.find(function(x){return x.id===id;});if(!c)return;c.valor=parseFloat(val)||0;persist();render();openFolders[id]=true;}
+function setBriefing(id,val){var c=clients.find(function(x){return x.id===id;});if(!c)return;c.briefing=val;persist();}
+function setComissao(id,val){var c=clients.find(function(x){return x.id===id;});if(!c)return;c.comissao=parseFloat(val)||0;persist();render();openFolders[id]=true;}
+function delClient(id){if(!confirm('Excluir este cliente e todos os seus dados?'))return;clients=clients.filter(function(c){return c.id!==id;});evts=evts.filter(function(e){return e.cliente_id!==id;});persist();render();renderCal();toast('Excluído!');}
+function saveTask(cid){var texto=getT('m-texto');if(!texto){toast('Preencha a descrição');return;}var c=clients.find(function(x){return x.id===cid;});if(!c)return;var dtVal=getV('m-dt');c.tarefas=c.tarefas||[];c.tarefas.push({id:uid(),texto:texto,tipo:'pending',concluida:false,data_vencimento:dtVal?new Date(dtVal).toISOString():null});persist();closeModal();render();renderCal();openFolders[cid]=true;toast('Tarefa adicionada!');}
+function updateTask(cid,tid){var texto=getT('m-texto');if(!texto){toast('Preencha a descrição');return;}var c=clients.find(function(x){return x.id===cid;});if(!c)return;var t=c.tarefas.find(function(t){return t.id===tid;});if(!t)return;var dtVal=getV('m-dt');t.texto=texto;t.data_vencimento=dtVal?new Date(dtVal).toISOString():null;persist();closeModal();render();renderCal();openFolders[cid]=true;toast('Tarefa atualizada!');}
+function toggleTask(cid,tid){var c=clients.find(function(x){return x.id===cid;});if(!c)return;var t=c.tarefas.find(function(t){return t.id===tid;});if(!t)return;t.concluida=!t.concluida;persist();render();openFolders[cid]=true;}
+function delTask(cid,tid){if(!confirm('Excluir esta tarefa?'))return;var c=clients.find(function(x){return x.id===cid;});if(!c)return;c.tarefas=c.tarefas.filter(function(t){return t.id!==tid;});persist();render();renderCal();openFolders[cid]=true;toast('Tarefa excluída!');}
+function saveEvt(){var titulo=getT('m-titulo');if(!titulo){toast('Preencha o título');return;}var dtVal=getV('m-dt');if(!dtVal){toast('Selecione a data');return;}var cid=getV('m-cliente')||null;evts.push({id:uid(),titulo:titulo,cliente_id:cid,data_inicio:new Date(dtVal).toISOString(),descricao:getT('m-desc')});persist();closeModal();render();renderCal();toast('Evento adicionado!');}
+function updateEvt(id){var titulo=getT('m-titulo');if(!titulo){toast('Preencha o título');return;}var e=evts.find(function(x){return x.id===id;});if(!e)return;var dtVal=getV('m-dt');e.titulo=titulo;e.cliente_id=getV('m-cliente')||null;e.descricao=getT('m-desc');if(dtVal)e.data_inicio=new Date(dtVal).toISOString();persist();closeModal();render();renderCal();toast('Evento atualizado!');}
+function delEvt(id){if(!confirm('Excluir este evento?'))return;evts=evts.filter(function(e){return e.id!==id;});persist();closeModal();render();renderCal();toast('Evento excluído!');}
+function saveMeta(val){meta=parseFloat(val)||0;lsSave(KEYS.meta,meta);render();}
+function backupData(){var data={clients:clients,evts:evts,meta:meta,date:new Date().toISOString()};var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crm-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('Backup salvo!');}
+function restoreData(input){var file=input.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){try{var data=JSON.parse(e.target.result);if(!data.clients)throw new Error('inválido');if(!confirm('Isso vai substituir todos os dados atuais. Confirma?'))return;clients=data.clients||[];evts=data.evts||[];meta=data.meta||50000;persist();lsSave(KEYS.meta,meta);render();renderCal();toast('Dados restaurados!');}catch(err){toast('Erro: arquivo inválido');}};reader.readAsText(file);input.value='';}
+function exportCSV(){var rows=[['Nome','Projeto','Status','Valor','Comissão %','Comissão R$','Tarefas pendentes']];clients.forEach(function(c){rows.push([c.nome,c.projeto,SL[c.status]||c.status,c.valor||0,c.comissao||0,calcCom(c),pendingCount(c)]);});var csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crm-clientes-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(a.href);toast('CSV exportado!');}
+document.getElementById('tabs').addEventListener('click',function(e){var btn=e.target.closest('.tab');if(!btn)return;var tab=btn.dataset.tab;document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');['clientes','calendario','fechados','perdidos','conversao','meta'].forEach(function(t){document.getElementById('tab-'+t).classList.toggle('hidden',t!==tab);});if(tab==='calendario')renderCal();});
+document.getElementById('meta-input').value=meta||'';
+render();renderCal();
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      console.log('SW registrado');
+    }).catch(function(err){
+      console.log('SW erro:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
