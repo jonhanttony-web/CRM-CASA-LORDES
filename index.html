@@ -551,10 +551,12 @@
   .goal-bar-fill{height:100%; background:linear-gradient(90deg, var(--copper-500), var(--copper-600)); border-radius:100px; transition:width .4s ease;}
   .goal-labels{display:flex; justify-content:space-between; margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:11px; color:rgba(36,28,22,0.5);}
 
-  .table-panel{max-width:900px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:20px 22px;}
-  .dash-lower-grid{display:grid; grid-template-columns:1.4fr 1fr; gap:16px; max-width:1220px; align-items:start;}
-  .conversion-panel{background:#fff; border:1px solid var(--line); border-radius:11px; padding:20px 22px;}
+  .table-panel{max-width:900px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:20px 22px; min-height:200px;}
+  .table-empty{display:flex; align-items:center; justify-content:center; height:140px; color:rgba(36,28,22,0.35); font-size:12.5px;}
+  .dash-lower-grid{display:grid; grid-template-columns:1.4fr 1fr; gap:16px; max-width:1220px; align-items:stretch;}
+  .conversion-panel{background:#fff; border:1px solid var(--line); border-radius:11px; padding:20px 22px; display:flex; flex-direction:column;}
   .conversion-rate{font-family:'Fraunces', serif; font-size:34px; font-weight:600; line-height:1; margin-top:4px;}
+  .conversion-rate.empty{font-size:15px; font-weight:500; color:rgba(36,28,22,0.35); font-family:'Space Grotesk', sans-serif;}
   .conversion-sub{font-size:11.5px; color:rgba(36,28,22,0.45); margin-top:5px; margin-bottom:18px;}
   .conversion-bars{display:flex; flex-direction:column; gap:12px; margin-bottom:16px;}
   .conv-bar-row{display:flex; align-items:center; gap:10px;}
@@ -1377,8 +1379,10 @@ function renderDashboard(){
   const totalLeads = wonCount + lostCount;
   const convRate = totalLeads ? Math.round((wonCount/totalLeads)*100) : 0;
 
-  document.getElementById('conversionRate').textContent = totalLeads ? convRate + '%' : '—';
-  document.getElementById('conversionSub').textContent = totalLeads ? `${wonCount} fechados de ${totalLeads} decididos` : 'Sem dados neste mês';
+  const rateEl = document.getElementById('conversionRate');
+  rateEl.textContent = totalLeads ? convRate + '%' : 'Sem decisões neste mês';
+  rateEl.classList.toggle('empty', !totalLeads);
+  document.getElementById('conversionSub').textContent = totalLeads ? `${wonCount} fechados de ${totalLeads} decididos` : 'Marque clientes como fechados ou perdidos pra ver aqui';
 
   const maxCount = Math.max(wonCount, lostCount, 1);
   document.getElementById('convBarWon').style.width = (wonCount/maxCount*100) + '%';
