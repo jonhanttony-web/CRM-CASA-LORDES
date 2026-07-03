@@ -535,7 +535,7 @@
   }
   .month-today:hover{border-color:var(--blueprint-500); color:var(--ink);}
   .dash-body{flex:1; overflow-y:auto; padding:24px 28px 60px;}
-  .metric-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-bottom:22px; max-width:900px;}
+  .metric-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:22px; max-width:1220px;}
   .metric-card{
     background:#fff; border:1px solid var(--line); border-radius:11px; padding:18px 20px;
   }
@@ -543,7 +543,7 @@
   .metric-value{font-family:'Fraunces', serif; font-size:28px; font-weight:600; color:var(--ink);}
   .metric-sub{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ok-500); margin-top:4px;}
 
-  .goal-panel{max-width:900px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:20px 22px; margin-bottom:20px;}
+  .goal-panel{max-width:1220px; background:#fff; border:1px solid var(--line); border-radius:11px; padding:20px 22px; margin-bottom:20px;}
   .goal-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;}
   .goal-top h3{font-family:'Fraunces', serif; font-size:16px; font-weight:600;}
   .goal-pct{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--copper-600); font-weight:500;}
@@ -1326,6 +1326,8 @@ function renderDashboard(){
   const totalCommission = closedClients.reduce((s,c)=>s+effectiveValue(c)*(getCommission(c)/100),0);
   const count = closedClients.length;
   const ticket = count ? totalValue / count : 0;
+  const activePipelineClients = clients.filter(c => !c.lost && !closedStages.includes(c.stage));
+  const activePipelineValue = activePipelineClients.reduce((s,c)=>s+effectiveValue(c),0);
 
   document.getElementById('metricGrid').innerHTML = `
     <div class="metric-card">
@@ -1342,6 +1344,11 @@ function renderDashboard(){
       <div class="metric-label">Comissão estimada</div>
       <div class="metric-value">${fmtMoney(Math.round(totalCommission))}</div>
       <div class="metric-sub">soma por cliente</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Clientes ativos no funil</div>
+      <div class="metric-value">${activePipelineClients.length}</div>
+      <div class="metric-sub">${fmtMoney(activePipelineValue)} em negociação</div>
     </div>
   `;
 
