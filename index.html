@@ -668,7 +668,7 @@
           <div>
             <div class="panel">
               <div class="panel-title">Dados do cliente</div>
-              <div class="field-row"><label>Nome</label><input id="f-name" oninput="saveField('name', this.value)"></div>
+              <div class="field-row"><label>Nome</label><input id="f-name" spellcheck="true" oninput="saveField('name', this.value)"></div>
               <div class="field-row">
                 <label>Telefone / WhatsApp</label>
                 <div class="phone-row">
@@ -679,9 +679,9 @@
                   </a>
                 </div>
               </div>
-              <div class="field-row"><label>Endereço</label><input id="f-address" oninput="saveField('address', this.value)"></div>
-              <div class="field-row"><label>Projeto / Ambiente</label><input id="f-project" oninput="saveField('project', this.value)"></div>
-              <div class="field-row"><label>Observações</label><textarea id="f-notes" rows="3" oninput="saveField('notes', this.value)"></textarea></div>
+              <div class="field-row"><label>Endereço</label><input id="f-address" spellcheck="true" oninput="saveField('address', this.value)"></div>
+              <div class="field-row"><label>Projeto / Ambiente</label><input id="f-project" spellcheck="true" oninput="saveField('project', this.value)"></div>
+              <div class="field-row"><label>Observações</label><textarea id="f-notes" rows="3" spellcheck="true" oninput="saveField('notes', this.value)"></textarea></div>
             </div>
 
             <div class="panel">
@@ -723,7 +723,7 @@
               <div class="panel-title">Tarefas</div>
               <div id="taskList"></div>
               <div class="add-note">
-                <input id="newTaskInput" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter')addTask()">
+                <input id="newTaskInput" spellcheck="true" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter')addTask()">
                 <button onclick="addTask()">+</button>
               </div>
             </div>
@@ -732,7 +732,7 @@
               <div class="panel-title">Histórico / Timeline</div>
               <div id="timelineList"></div>
               <div class="add-note">
-                <input id="newNoteInput" placeholder="Registrar interação..." onkeydown="if(event.key==='Enter')addTimelineEntry()">
+                <input id="newNoteInput" spellcheck="true" placeholder="Registrar interação..." onkeydown="if(event.key==='Enter')addTimelineEntry()">
                 <button onclick="addTimelineEntry()">+</button>
               </div>
             </div>
@@ -1128,7 +1128,7 @@ function refreshClientDetail(){
       <div class="task-check ${t.done?'done':''}" onclick="toggleTask(${i})">
         ${t.done ? '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>' : ''}
       </div>
-      <div class="task-text ${t.done?'done':''}" contenteditable="true" onblur="editTask(${i}, this.textContent)" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">${escapeHtml(t.text)}</div>
+      <div class="task-text ${t.done?'done':''}" contenteditable="true" spellcheck="true" onblur="editTask(${i}, this.textContent)" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">${escapeHtml(t.text)}</div>
       <div class="task-del" onclick="deleteTask(${i})" title="Excluir tarefa">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </div>
