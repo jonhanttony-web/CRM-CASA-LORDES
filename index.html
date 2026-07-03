@@ -683,6 +683,7 @@
               </div>
               <div class="field-row"><label>Endereço</label><input id="f-address" spellcheck="true" oninput="saveField('address', this.value)"></div>
               <div class="field-row"><label>Projeto / Ambiente</label><input id="f-project" spellcheck="true" oninput="saveField('project', this.value)"></div>
+              <div class="field-row"><label>Investimento pretendido (R$)</label><input id="f-budgetIntent" type="number" placeholder="Quanto o cliente quer investir" oninput="saveField('budgetIntent', this.value)"></div>
               <div class="field-row"><label>Observações</label><textarea id="f-notes" rows="3" spellcheck="true" oninput="saveField('notes', this.value)"></textarea></div>
             </div>
 
@@ -908,6 +909,7 @@ function mkClient(name, phone, project, stage, value, timelineTexts, tasks, comm
     commission: commission !== undefined ? commission : 6,
     discounts: [0, 5, 10],
     closedValue: null,
+    budgetIntent: null,
     address:'', notes:'',
     photo: null,
     lost: false, lostReason:'', lostAt:null,
@@ -1027,7 +1029,7 @@ function renderBoard(){
         </div>
         <div class="card-project">${escapeHtml(c.project) || 'Sem projeto definido'}</div>
         <div class="card-bottom">
-          <div class="card-value">${fmtMoney(effectiveValue(c))}</div>
+          <div class="card-value">${effectiveValue(c) ? fmtMoney(effectiveValue(c)) : (c.budgetIntent ? '~ ' + fmtMoney(c.budgetIntent) : fmtMoney(0))}</div>
         </div>
       `;
       card.addEventListener('dragstart', e=>{
@@ -1091,6 +1093,7 @@ function refreshClientDetail(){
   }
   document.getElementById('f-address').value = c.address || '';
   document.getElementById('f-project').value = c.project || '';
+  document.getElementById('f-budgetIntent').value = c.budgetIntent || '';
   document.getElementById('f-notes').value = c.notes || '';
   document.getElementById('f-value').value = c.value || '';
   document.getElementById('f-commission').value = getCommission(c);
@@ -1152,7 +1155,7 @@ function refreshClientDetail(){
 function saveField(field, value){
   const c = clients.find(x=>x.id===currentClientId);
   if(!c) return;
-  c[field] = (field === 'value' || field === 'commission' || field === 'promobValue') ? Number(value) : value;
+  c[field] = (field === 'value' || field === 'commission' || field === 'promobValue' || field === 'budgetIntent') ? Number(value) : value;
   if(field === 'value'){
     c.closedValue = null; // valor base mudou, desconto aplicado antes fica inválido
   }
