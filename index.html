@@ -892,6 +892,8 @@ function loadClients(){
     mkClient('Suelen Bittencourt', '(53) 99377-2200', 'Cozinha americana', 'montagem', 11300, [], [{text:'Montagem em andamento', done:false}]),
     mkClient('Paulo Henrique Vaz', '(53) 99288-4455', 'Escritório + biblioteca', 'finalizado', 7600, [], []),
   ];
+  // varia a data só nos dados de demonstração, pra mostrar como fica um card "parado"
+  seed.forEach((c,i)=>{ c.stageChangedAt -= (i % 4) * 86400000; });
   localStorage.setItem('crm_clients', JSON.stringify(seed));
   return seed;
 }
@@ -907,7 +909,7 @@ function mkClient(name, phone, project, stage, value, timelineTexts, tasks, comm
     address:'', notes:'',
     photo: null,
     lost: false, lostReason:'', lostAt:null,
-    stageChangedAt: now - Math.floor(Math.random()*4)*86400000,
+    stageChangedAt: now,
     createdAt: now,
     timeline: timelineTexts.map(t=>({text:t, date:new Date().toLocaleDateString('pt-BR')})),
     tasks: tasks || [],
