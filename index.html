@@ -269,6 +269,8 @@
   }
   .card:hover{transform:translateY(-1px); box-shadow:0 10px 22px rgba(28,22,17,0.14);}
   .card.dragging{opacity:0.4;}
+  .card.drop-before{box-shadow:0 -3px 0 0 var(--blueprint-500), var(--shadow);}
+  .card.drop-after{box-shadow:0 3px 0 0 var(--blueprint-500), var(--shadow);}
   .card-top{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
   .avatar{
     width:30px; height:30px;
@@ -1058,9 +1060,50 @@ function renderBoard(){
       });
       card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
       card.addEventListener('click', e=>{ if(!card.classList.contains('dragging')) openClient(c.id); });
+      card.addEventListener('dragover', e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = card.getBoundingClientRect();
+        const before = (e.clientY - rect.top) < rect.height/2;
+        card.classList.toggle('drop-before', before);
+        card.classList.toggle('drop-after', !before);
+      });
+      card.addEventListener('dragleave', ()=>{
+        card.classList.remove('drop-before','drop-after');
+      });
+      card.addEventListener('drop', e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.remove('drop-before','drop-after');
+        const draggedId = e.dataTransfer.getData('text/plain');
+        reorderClient(draggedId, c.id, stage.id, e);
+      });
       body.appendChild(card);
     });
   });
+}
+
+function reorderClient(draggedId, targetId, targetStage, e){
+  if(draggedId === targetId) return;
+  const draggedIndex = clients.findIndex(c=>c.id===draggedId);
+  if(draggedIndex === -1) return;
+  const draggedClient = clients[draggedIndex];
+  const stageChanged = draggedClient.stage !== targetStage;
+  clients.splice(draggedIndex, 1);
+  draggedClient.stage = targetStage;
+  if(stageChanged) draggedClient.stageChangedAt = Date.now();
+
+  const targetIndex = clients.findIndex(c=>c.id===targetId);
+  const targetCardEl = document.querySelector(`.card[data-id="${targetId}"]`);
+  let insertAt = targetIndex;
+  if(targetCardEl){
+    const rect = targetCardEl.getBoundingClientRect();
+    const before = (e.clientY - rect.top) < rect.height/2;
+    insertAt = before ? targetIndex : targetIndex + 1;
+  }
+  clients.splice(insertAt, 0, draggedClient);
+  persist();
+  renderBoard();
 }
 
 function moveClientToStage(id, stageId){
@@ -1538,6 +1581,23 @@ document.addEventListener('paste', e=>{
     }
   }
 });
+
+/* ===== backup automático a cada 24h ===== */
+function checkAutoBackup(){
+  const last = Number(localStorage.getItem('crm_last_autobackup') || 0);
+  const now = Date.now();
+  if(last === 0){
+    // primeira vez usando o CRM: só marca o relógio, não baixa nada ainda
+    localStorage.setItem('crm_last_autobackup', String(now));
+    return;
+  }
+  if(now - last >= 24*60*60*1000){
+    exportBackup();
+    localStorage.setItem('crm_last_autobackup', String(now));
+  }
+}
+checkAutoBackup();
+setInterval(checkAutoBackup, 60*60*1000); // confere de hora em hora se já passou 24h
 
 /* ===== atalho de teclado: N cria novo cliente ===== */
 document.addEventListener('keydown', e=>{
